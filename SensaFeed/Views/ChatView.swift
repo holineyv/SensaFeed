@@ -79,7 +79,7 @@ struct ChatContent: View {
                 isExpanded = false
             } label: {
                 Image(systemName: "xmark.circle.fill")
-                    .font(.title3)
+                    .font(.title)
                     .symbolRenderingMode(.hierarchical)
                     .foregroundStyle(.secondary)
             }
