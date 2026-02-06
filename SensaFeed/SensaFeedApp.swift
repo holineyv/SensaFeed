@@ -10,11 +10,13 @@ import SwiftUI
 @main
 struct SensaFeedApp: App {
     @State private var feedService = FeedService()
+    @State private var chatService = ChatService()
 
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environment(feedService)
+                .environment(chatService)
         }
     }
 }

@@ -9,11 +9,20 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        FeedListView()
+        TabView {
+            Tab("Feeds", systemImage: "newspaper") {
+                FeedListView()
+            }
+
+            Tab("Chat", systemImage: "sparkles") {
+                ChatView()
+            }
+        }
     }
 }
 
 #Preview {
     ContentView()
         .environment(FeedService())
+        .environment(ChatService())
 }
