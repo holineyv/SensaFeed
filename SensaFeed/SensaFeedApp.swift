@@ -9,9 +9,12 @@ import SwiftUI
 
 @main
 struct SensaFeedApp: App {
+    @State private var feedService = FeedService()
+
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(feedService)
         }
     }
 }
