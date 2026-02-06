@@ -25,6 +25,7 @@ struct ContentView: View {
                     ChatContent()
                 }
             }
+            .navigationTitle("SensaFeed")
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Picker("", selection: $selectedTab) {

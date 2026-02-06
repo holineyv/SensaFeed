@@ -43,7 +43,6 @@ struct FeedListContent: View {
                 }
             }
         }
-        .navigationTitle("SensaFeed")
         .navigationDestination(for: FeedSource.self) { source in
             ArticleListView(source: source)
         }

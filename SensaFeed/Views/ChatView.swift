@@ -23,7 +23,6 @@ struct ChatContent: View {
                     .transition(.scale.combined(with: .opacity))
             }
         }
-        .navigationTitle("SensaFeed")
         .animation(.spring(duration: 0.35), value: isExpanded)
     }
 
