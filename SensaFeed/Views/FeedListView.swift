@@ -44,10 +44,15 @@ struct FeedListView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        showingAddFeed = true
-                    } label: {
-                        Image(systemName: "plus")
+                    HStack(spacing: 16) {
+                        if !feedService.sources.isEmpty {
+                            EditButton()
+                        }
+                        Button {
+                            showingAddFeed = true
+                        } label: {
+                            Image(systemName: "plus")
+                        }
                     }
                 }
                 ToolbarItem(placement: .topBarLeading) {
