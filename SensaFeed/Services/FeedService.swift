@@ -62,6 +62,8 @@ final class FeedService {
         isLoading = true
         errorMessage = nil
 
+        var results: [Feed] = []
+
         await withTaskGroup(of: Feed?.self) { group in
             for source in sources {
                 group.addTask { [parser] in
@@ -69,18 +71,14 @@ final class FeedService {
                 }
             }
 
-            // Show feeds incrementally as they arrive
             for await feed in group {
                 if let feed {
-                    if let index = feeds.firstIndex(where: { $0.url == feed.url }) {
-                        feeds[index] = feed
-                    } else {
-                        feeds.append(feed)
-                    }
+                    results.append(feed)
                 }
             }
         }
 
+        feeds = results
         isLoading = false
     }
 
