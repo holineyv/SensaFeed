@@ -1,75 +1,72 @@
 import SwiftUI
 
-struct FeedListView: View {
+struct FeedListContent: View {
     @Environment(FeedService.self) private var feedService
     @State private var showingAddFeed = false
 
     var body: some View {
-        NavigationStack {
-            Group {
-                if feedService.isLoading && feedService.feeds.isEmpty {
-                    ProgressView("Loading feeds...")
-                } else if feedService.sources.isEmpty {
-                    ContentUnavailableView(
-                        "No Feeds",
-                        systemImage: "newspaper",
-                        description: Text("Add RSS feeds to start reading")
-                    )
-                } else {
-                    List {
-                        ForEach(FeedCategory.allCases) { category in
-                            let categorySources = feedService.sources.filter { $0.category == category }
-                            if !categorySources.isEmpty {
-                                Section(category.rawValue) {
-                                    ForEach(categorySources) { source in
-                                        NavigationLink(value: source) {
-                                            FeedSourceRow(source: source, feed: feedFor(source))
-                                        }
+        Group {
+            if feedService.isLoading && feedService.feeds.isEmpty {
+                ProgressView("Loading feeds...")
+            } else if feedService.sources.isEmpty {
+                ContentUnavailableView(
+                    "No Feeds",
+                    systemImage: "newspaper",
+                    description: Text("Add RSS feeds to start reading")
+                )
+            } else {
+                List {
+                    NavigationLink {
+                        AllArticlesView()
+                    } label: {
+                        Label("All Articles", systemImage: "list.bullet")
+                    }
+
+                    ForEach(FeedCategory.allCases) { category in
+                        let categorySources = feedService.sources.filter { $0.category == category }
+                        if !categorySources.isEmpty {
+                            Section(category.rawValue) {
+                                ForEach(categorySources) { source in
+                                    NavigationLink(value: source) {
+                                        FeedSourceRow(source: source, feed: feedFor(source))
                                     }
-                                    .onDelete { offsets in
-                                        deleteSources(categorySources, at: offsets)
-                                    }
+                                }
+                                .onDelete { offsets in
+                                    deleteSources(categorySources, at: offsets)
                                 }
                             }
                         }
                     }
-                    .refreshable {
-                        await feedService.fetchAllFeeds()
-                    }
                 }
-            }
-            .navigationTitle("SensaFeed")
-            .navigationDestination(for: FeedSource.self) { source in
-                ArticleListView(source: source)
-            }
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    HStack(spacing: 16) {
-                        if !feedService.sources.isEmpty {
-                            EditButton()
-                        }
-                        Button {
-                            showingAddFeed = true
-                        } label: {
-                            Image(systemName: "plus")
-                        }
-                    }
-                }
-                ToolbarItem(placement: .topBarLeading) {
-                    NavigationLink {
-                        AllArticlesView()
-                    } label: {
-                        Image(systemName: "list.bullet")
-                    }
-                }
-            }
-            .sheet(isPresented: $showingAddFeed) {
-                AddFeedView()
-            }
-            .task {
-                if feedService.feeds.isEmpty {
+                .refreshable {
                     await feedService.fetchAllFeeds()
                 }
+            }
+        }
+        .navigationTitle("SensaFeed")
+        .navigationDestination(for: FeedSource.self) { source in
+            ArticleListView(source: source)
+        }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                HStack(spacing: 16) {
+                    if !feedService.sources.isEmpty {
+                        EditButton()
+                    }
+                    Button {
+                        showingAddFeed = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                }
+            }
+        }
+        .sheet(isPresented: $showingAddFeed) {
+            AddFeedView()
+        }
+        .task {
+            if feedService.feeds.isEmpty {
+                await feedService.fetchAllFeeds()
             }
         }
     }

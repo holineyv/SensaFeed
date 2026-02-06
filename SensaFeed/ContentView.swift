@@ -7,26 +7,38 @@
 
 import SwiftUI
 
-enum AppTab: Hashable {
-    case feeds
-    case chat
+enum AppTab: String, CaseIterable {
+    case feeds = "Feeds"
+    case chat = "AI"
 }
 
 struct ContentView: View {
     @State private var selectedTab: AppTab = .feeds
 
     var body: some View {
-        TabView(selection: $selectedTab) {
-            Tab("Feeds", systemImage: "newspaper", value: .feeds) {
-                FeedListView()
+        NavigationStack {
+            Group {
+                switch selectedTab {
+                case .feeds:
+                    FeedListContent()
+                case .chat:
+                    ChatContent()
+                }
             }
-
-            Tab("Chat", systemImage: "sparkles", value: .chat) {
-                ChatView()
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Picker("", selection: $selectedTab) {
+                        ForEach(AppTab.allCases, id: \.self) { tab in
+                            Text(tab.rawValue).tag(tab)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(width: 120)
+                }
             }
-        }
-        .onChange(of: selectedTab) {
-            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+            .onChange(of: selectedTab) {
+                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+            }
         }
     }
 }

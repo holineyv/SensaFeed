@@ -1,23 +1,21 @@
 import SwiftUI
 
-struct ChatView: View {
+struct ChatContent: View {
     @Environment(ChatService.self) private var chatService
     @State private var inputText = ""
     @FocusState private var isInputFocused: Bool
 
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                messageList
-                inputBar
-            }
-            .navigationTitle("Ask AI")
-            .toolbar {
-                if !chatService.messages.isEmpty {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button("Clear") {
-                            chatService.clear()
-                        }
+        VStack(spacing: 0) {
+            messageList
+            inputBar
+        }
+        .navigationTitle("SensaFeed")
+        .toolbar {
+            if !chatService.messages.isEmpty {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Clear") {
+                        chatService.clear()
                     }
                 }
             }
