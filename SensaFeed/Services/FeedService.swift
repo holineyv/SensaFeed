@@ -10,13 +10,16 @@ final class FeedService {
     private let parser = RSSParser()
     private let sourcesKey = "savedFeedSources"
 
+    private static let session: URLSession = {
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 15
+        config.timeoutIntervalForResource = 20
+        return URLSession(configuration: config)
+    }()
+
     static let defaultSources: [FeedSource] = [
-        FeedSource(name: "TechCrunch", url: URL(string: "https://techcrunch.com/feed/")!, category: .tech),
         FeedSource(name: "Ars Technica", url: URL(string: "https://feeds.arstechnica.com/arstechnica/index")!, category: .tech),
-        FeedSource(name: "The Verge", url: URL(string: "https://www.theverge.com/rss/index.xml")!, category: .tech),
         FeedSource(name: "BBC News", url: URL(string: "https://feeds.bbci.co.uk/news/rss.xml")!, category: .news),
-        FeedSource(name: "Reuters", url: URL(string: "https://www.reutersagency.com/feed/")!, category: .news),
-        FeedSource(name: "NASA", url: URL(string: "https://www.nasa.gov/rss/dyn/breaking_news.rss")!, category: .science),
     ]
 
     init() {
@@ -49,6 +52,12 @@ final class FeedService {
         saveSources()
     }
 
+    func resetToDefaults() {
+        UserDefaults.standard.removeObject(forKey: sourcesKey)
+        sources = Self.defaultSources
+        feeds = []
+    }
+
     func fetchAllFeeds() async {
         isLoading = true
         errorMessage = nil
@@ -60,13 +69,16 @@ final class FeedService {
                 }
             }
 
-            var results: [Feed] = []
+            // Show feeds incrementally as they arrive
             for await feed in group {
                 if let feed {
-                    results.append(feed)
+                    if let index = feeds.firstIndex(where: { $0.url == feed.url }) {
+                        feeds[index] = feed
+                    } else {
+                        feeds.append(feed)
+                    }
                 }
             }
-            feeds = results
         }
 
         isLoading = false
@@ -78,13 +90,13 @@ final class FeedService {
 
     private static func fetchFeed(from url: URL, parser: RSSParser) async -> Feed? {
         do {
-            let (data, _) = try await URLSession.shared.data(from: url)
+            let (data, _) = try await session.data(from: url)
             if var feed = parser.parse(data: data) {
                 feed.url = url
                 return feed
             }
         } catch {
-            // Silently fail for individual feeds
+            // Individual feed failure — skip silently
         }
         return nil
     }
