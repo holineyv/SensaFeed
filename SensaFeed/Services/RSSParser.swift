@@ -124,19 +124,16 @@ private final class RSSParserDelegate: NSObject, XMLParserDelegate {
             state.currentItem = RawFeedItem()
         } else if elementName == "image" && !state.isInsideItem {
             state.isInsideImage = true
-        } else if elementName == "enclosure" || elementName == "media:content" {
-            if let url = attributeDict["url"],
-               let type = attributeDict["type"], type.hasPrefix("image") {
-                if state.isInsideItem {
-                    state.currentItem?.imageURL = url
-                }
-            }
-            // media:content without type
-            if elementName == "media:content", let url = attributeDict["url"], state.isInsideItem {
+        } else if state.isInsideItem {
+            let mediaURL = attributeDict["url"]
+            let mediaType = attributeDict["type"]
+
+            if elementName == "enclosure", let url = mediaURL,
+               let type = mediaType, type.hasPrefix("image") {
+                state.currentItem?.imageURL = url
+            } else if elementName == "media:content", let url = mediaURL {
                 state.currentItem?.imageURL = state.currentItem?.imageURL ?? url
-            }
-        } else if elementName == "media:thumbnail" {
-            if let url = attributeDict["url"], state.isInsideItem {
+            } else if elementName == "media:thumbnail", let url = mediaURL {
                 state.currentItem?.imageURL = state.currentItem?.imageURL ?? url
             }
         }
