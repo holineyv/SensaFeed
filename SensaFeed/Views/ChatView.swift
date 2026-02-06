@@ -91,7 +91,7 @@ struct ChatView: View {
     // MARK: - Input Bar
 
     private var inputBar: some View {
-        HStack(alignment: .bottom, spacing: 8) {
+        HStack(spacing: 8) {
             TextField("Ask something...", text: $inputText, axis: .vertical)
                 .lineLimit(1...5)
                 .textFieldStyle(.plain)
@@ -104,7 +104,7 @@ struct ChatView: View {
                 sendMessage()
             } label: {
                 Image(systemName: "arrow.up.circle.fill")
-                    .font(.title2)
+                    .font(.system(size: 32))
                     .symbolRenderingMode(.hierarchical)
             }
             .disabled(inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || chatService.isResponding)
