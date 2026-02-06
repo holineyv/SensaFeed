@@ -99,6 +99,12 @@ struct ChatView: View {
                 .padding(.vertical, 8)
                 .background(.fill.tertiary, in: .capsule)
                 .focused($isInputFocused)
+                .toolbar {
+                    ToolbarItemGroup(placement: .keyboard) {
+                        Spacer()
+                        Button("Done") { isInputFocused = false }
+                    }
+                }
 
             Button {
                 sendMessage()
