@@ -53,7 +53,7 @@ struct ChatContent: View {
             messageList
             inputBar
         }
-        .background(.regularMaterial)
+        .background(Color(.secondarySystemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 20))
         .shadow(color: .black.opacity(0.15), radius: 16, y: 8)
         .padding(.horizontal, 8)
