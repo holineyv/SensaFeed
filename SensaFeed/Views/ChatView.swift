@@ -1,25 +1,91 @@
 import SwiftUI
 
+// MARK: - Floating AI Button + Expandable Chat
+
 struct ChatContent: View {
     @Environment(ChatService.self) private var chatService
+    @State private var isExpanded = false
     @State private var inputText = ""
     @FocusState private var isInputFocused: Bool
 
     var body: some View {
+        ZStack(alignment: .bottomTrailing) {
+            Color.clear
+
+            if isExpanded {
+                expandedChat
+                    .transition(.asymmetric(
+                        insertion: .move(edge: .bottom).combined(with: .opacity),
+                        removal: .move(edge: .bottom).combined(with: .opacity)
+                    ))
+            } else {
+                floatingButton
+                    .transition(.scale.combined(with: .opacity))
+            }
+        }
+        .navigationTitle("SensaFeed")
+        .animation(.spring(duration: 0.35), value: isExpanded)
+    }
+
+    // MARK: - Floating Button
+
+    private var floatingButton: some View {
+        Button {
+            isExpanded = true
+        } label: {
+            Image(systemName: "sparkles")
+                .font(.title2)
+                .fontWeight(.semibold)
+                .foregroundStyle(.white)
+                .frame(width: 56, height: 56)
+                .background(Color.accentColor, in: Circle())
+                .shadow(color: .black.opacity(0.2), radius: 8, y: 4)
+        }
+        .padding(.trailing, 20)
+        .padding(.bottom, 20)
+    }
+
+    // MARK: - Expanded Chat Panel
+
+    private var expandedChat: some View {
         VStack(spacing: 0) {
+            chatHeader
             messageList
             inputBar
         }
-        .navigationTitle("SensaFeed")
-        .toolbar {
+        .background(.regularMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .shadow(color: .black.opacity(0.15), radius: 16, y: 8)
+        .padding(.horizontal, 8)
+        .padding(.bottom, 8)
+    }
+
+    private var chatHeader: some View {
+        HStack {
+            Text("Ask AI")
+                .font(.headline)
+
+            Spacer()
+
             if !chatService.messages.isEmpty {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Clear") {
-                        chatService.clear()
-                    }
+                Button("Clear") {
+                    chatService.clear()
                 }
+                .font(.subheadline)
+            }
+
+            Button {
+                isInputFocused = false
+                isExpanded = false
+            } label: {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.title3)
+                    .symbolRenderingMode(.hierarchical)
+                    .foregroundStyle(.secondary)
             }
         }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
     }
 
     // MARK: - Message List
@@ -42,7 +108,7 @@ struct ChatContent: View {
                         }
                     }
                     .padding(.horizontal)
-                    .padding(.top, 12)
+                    .padding(.top, 4)
                     .padding(.bottom, 8)
                 }
             }
@@ -66,26 +132,20 @@ struct ChatContent: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: 16) {
-            Spacer()
-
+        VStack(spacing: 12) {
             Image(systemName: "sparkles")
-                .font(.system(size: 48))
+                .font(.system(size: 36))
                 .foregroundStyle(.tertiary)
 
             Text("Ask anything")
-                .font(.title2)
-                .fontWeight(.semibold)
+                .font(.headline)
 
-            Text("Ask about your feeds, get summaries,\nor discover new content")
-                .font(.subheadline)
+            Text("Get summaries, discover content")
+                .font(.caption)
                 .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-
-            Spacer()
         }
         .frame(maxWidth: .infinity)
-        .padding()
+        .padding(.vertical, 32)
     }
 
     // MARK: - Input Bar
@@ -109,9 +169,8 @@ struct ChatContent: View {
             }
             .disabled(inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || chatService.isResponding)
         }
-        .padding(.horizontal)
+        .padding(.horizontal, 12)
         .padding(.vertical, 8)
-        .background(.bar)
     }
 
     private func sendMessage() {
