@@ -48,6 +48,8 @@ struct ChatView: View {
                     .padding(.bottom, 8)
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
+            .onTapGesture { isInputFocused = false }
             .onChange(of: chatService.messages.count) {
                 withAnimation {
                     if let last = chatService.messages.last {
@@ -99,12 +101,6 @@ struct ChatView: View {
                 .padding(.vertical, 8)
                 .background(.fill.tertiary, in: .capsule)
                 .focused($isInputFocused)
-                .toolbar {
-                    ToolbarItemGroup(placement: .keyboard) {
-                        Spacer()
-                        Button("Done") { isInputFocused = false }
-                    }
-                }
 
             Button {
                 sendMessage()
