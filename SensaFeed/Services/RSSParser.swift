@@ -131,10 +131,12 @@ private final class RSSParserDelegate: NSObject, XMLParserDelegate {
             if elementName == "enclosure", let url = mediaURL,
                let type = mediaType, type.hasPrefix("image") {
                 state.currentItem?.imageURL = url
-            } else if elementName == "media:content", let url = mediaURL {
-                state.currentItem?.imageURL = state.currentItem?.imageURL ?? url
-            } else if elementName == "media:thumbnail", let url = mediaURL {
-                state.currentItem?.imageURL = state.currentItem?.imageURL ?? url
+            } else if elementName == "media:content", let url = mediaURL,
+                      state.currentItem?.imageURL == nil {
+                state.currentItem?.imageURL = url
+            } else if elementName == "media:thumbnail", let url = mediaURL,
+                      state.currentItem?.imageURL == nil {
+                state.currentItem?.imageURL = url
             }
         }
     }
